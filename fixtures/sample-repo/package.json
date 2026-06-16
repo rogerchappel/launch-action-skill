@@ -1,0 +1,9 @@
+{
+  "name": "sample-agent-tool",
+  "version": "0.1.0",
+  "description": "Local-first agent workflow tool with fixture-backed tests.",
+  "scripts": {
+    "test": "node --test",
+    "smoke": "node bin/sample.js"
+  }
+}
