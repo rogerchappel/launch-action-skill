@@ -26,5 +26,9 @@
   "repository": {
     "type": "git",
     "url": "git+https://github.com/rogerchappel/launch-action-skill.git"
-  }
+  },
+  "bugs": {
+    "url": "https://github.com/rogerchappel/launch-action-skill/issues"
+  },
+  "homepage": "https://github.com/rogerchappel/launch-action-skill#readme"
 }
