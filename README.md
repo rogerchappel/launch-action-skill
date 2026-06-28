@@ -5,9 +5,16 @@ Local-first agent skill for converting repository evidence into a dry-run OSS la
 ## Quickstart
 
 ~~~bash
+npm install
 npm test
 npm run smoke
 node bin/launch-action-skill.js fixtures/sample-repo --format json
+~~~
+
+For a reviewable Markdown plan:
+
+~~~bash
+node bin/launch-action-skill.js fixtures/sample-repo --format markdown
 ~~~
 
 ## What It Produces
@@ -17,6 +24,26 @@ node bin/launch-action-skill.js fixtures/sample-repo --format json
 - Asset needs for launch material
 - Dry-run actions for an agent workflow
 - Approval gates for external publish actions
+
+## Input Expectations
+
+Point the CLI at a local repository checkout or fixture directory. The planner
+looks for README, release notes, verification docs, package metadata, and launch
+notes; missing evidence is reported as a blocker or follow-up rather than being
+invented.
+
+## Verification
+
+Run the release-readiness gate before publishing or handing the skill to another
+agent:
+
+~~~bash
+npm run check
+npm test
+npm run smoke
+npm run package:smoke
+npm run release:check
+~~~
 
 ## Limitations
 
