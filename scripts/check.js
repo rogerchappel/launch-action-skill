@@ -1,6 +1,15 @@
 import fs from 'node:fs';
 
-const required = ['README.md', 'SKILL.md', 'docs/PRD.md', 'docs/TASKS.md', 'docs/ORCHESTRATION.md', 'package.json'];
+const required = [
+  'README.md',
+  'SKILL.md',
+  'SECURITY.md',
+  'CHANGELOG.md',
+  'docs/PRD.md',
+  'docs/TASKS.md',
+  'docs/ORCHESTRATION.md',
+  'package.json'
+];
 const missing = required.filter(file => !fs.existsSync(file));
 if (missing.length) { console.error('Missing required files: ' + missing.join(', ')); process.exit(1); }
 
@@ -10,7 +19,17 @@ for (const phrase of ['Side Effects', 'Approval Requirements', 'Validation']) {
 }
 
 const pkg = JSON.parse(fs.readFileSync('package.json', 'utf8'));
-const requiredFiles = ['bin', 'src', 'fixtures', 'docs', 'SKILL.md', 'README.md', 'LICENSE'];
+const requiredFiles = [
+  'bin',
+  'src',
+  'fixtures',
+  'docs',
+  'SKILL.md',
+  'README.md',
+  'LICENSE',
+  'SECURITY.md',
+  'CHANGELOG.md'
+];
 const requiredScripts = ['test', 'check', 'smoke', 'package:smoke', 'release:check'];
 const missingFiles = requiredFiles.filter(file => !pkg.files?.includes(file));
 const missingScripts = requiredScripts.filter(script => !pkg.scripts?.[script]);
