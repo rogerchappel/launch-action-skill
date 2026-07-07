@@ -10,7 +10,7 @@
     "test": "node --test",
     "check": "node scripts/check.js",
     "smoke": "node bin/launch-action-skill.js fixtures/sample-repo --format markdown",
-    "package:smoke": "npm pack --dry-run",
+    "package:smoke": "node scripts/package-smoke.js",
     "release:check": "npm run check && npm test && npm run smoke && npm run package:smoke",
     "lint": "npm run check"
   },
