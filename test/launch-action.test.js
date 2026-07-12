@@ -1,5 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { spawnSync } from 'node:child_process';
 import { createLaunchPlan, readLaunchEvidence, renderMarkdown } from '../src/index.js';
 
 test('reads local launch evidence', () => {
@@ -19,4 +20,14 @@ test('renders markdown launch plan', () => {
   const markdown = renderMarkdown(createLaunchPlan('fixtures/sample-repo'));
   assert.match(markdown, /# Launch Action Plan/);
   assert.match(markdown, /Approval Gates/);
+});
+
+test('CLI help exits cleanly with usage text', () => {
+  const result = spawnSync(process.execPath, ['bin/launch-action-skill.js', '--help'], {
+    cwd: new URL('..', import.meta.url),
+    encoding: 'utf8'
+  });
+
+  assert.equal(result.status, 0);
+  assert.match(result.stdout, /Usage: launch-action-skill/);
 });
