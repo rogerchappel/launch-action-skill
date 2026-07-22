@@ -20,9 +20,14 @@ function findBlockers(evidence) {
   const blockers = [];
   if (!evidence.readme) blockers.push('README.md is missing.');
   if (!evidence.packageJson.name) blockers.push('package.json name is missing.');
-  if (!/test|smoke|check/i.test(evidence.verification)) blockers.push('Verification evidence is missing or incomplete.');
+  if (hasFailedVerification(evidence.verification)) blockers.push('Verification evidence reports failed checks.');
+  else if (!/test|smoke|check/i.test(evidence.verification)) blockers.push('Verification evidence is missing or incomplete.');
   if (!evidence.releaseNotes) blockers.push('Release notes are missing.');
   return blockers;
+}
+
+function hasFailedVerification(verification) {
+  return /\b(?:tests?|checks?|smoke(?:\s+checks?)?)\b[^.!?\n]{0,80}\b(?:fail(?:ed|ing|ure)?|did\s+not\s+pass|(?:is|are|was|were)\s+not\s+passing)\b/i.test(verification);
 }
 
 function angles(evidence) {
