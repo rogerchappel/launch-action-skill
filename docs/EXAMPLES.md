@@ -3,7 +3,7 @@
 ## Markdown Plan
 
 ~~~bash
-launch-action-skill fixtures/sample-repo
+launch-action-skill fixtures/sample-repo --format markdown
 ~~~
 
 ## JSON Plan
