@@ -20,21 +20,28 @@ function findBlockers(evidence) {
   const blockers = [];
   if (!evidence.readme) blockers.push('README.md is missing.');
   if (!evidence.packageJson.name) blockers.push('package.json name is missing.');
-  if (hasFailedVerification(evidence.verification)) blockers.push('Verification evidence reports failed checks.');
-  else if (!/test|smoke|check/i.test(evidence.verification)) blockers.push('Verification evidence is missing or incomplete.');
+  const verificationStatus = classifyVerification(evidence.verification);
+  if (verificationStatus === 'failed') blockers.push('Verification evidence reports failed checks.');
+  else if (verificationStatus !== 'passed') blockers.push('Verification evidence does not report completed passing checks.');
   if (!evidence.releaseNotes) blockers.push('Release notes are missing.');
   return blockers;
 }
 
-function hasFailedVerification(verification) {
-  return /\b(?:tests?|checks?|smoke(?:\s+checks?)?)\b[^.!?\n]{0,80}\b(?:fail(?:ed|ing|ure)?|did\s+not\s+pass|(?:is|are|was|were)\s+not\s+passing)\b/i.test(verification);
+function classifyVerification(verification) {
+  const check = String.raw`\b(?:tests?|checks?|smoke(?:\s+checks?)?)\b`;
+  const failed = String.raw`\b(?:fail(?:ed|ing|ure)?|did\s+not\s+pass|(?:is|are|was|were)\s+not\s+passing)\b`;
+  const passed = String.raw`\b(?:pass(?:ed|ing)?|succeed(?:ed|ing)?|completed\s+successfully)\b`;
+
+  if (new RegExp(`${check}[^.!?\\n]{0,80}${failed}`, 'i').test(verification)) return 'failed';
+  if (new RegExp(`${check}[^.!?\\n]{0,80}${passed}`, 'i').test(verification)) return 'passed';
+  return 'incomplete';
 }
 
 function angles(evidence) {
   const angles = [];
   if (/local-first/i.test(evidence.readme + evidence.releaseNotes)) angles.push('Local-first workflow with reviewable outputs.');
   if (/agent/i.test(evidence.readme + evidence.packageJson.description)) angles.push('Agent-builder utility for safer automation.');
-  if (/fixture|test/i.test(evidence.verification)) angles.push('Fixture-backed verification story.');
+  if (classifyVerification(evidence.verification) === 'passed') angles.push('Fixture-backed verification story.');
   return angles.length ? angles : ['Explain the concrete user workflow and proof from local docs.'];
 }
 

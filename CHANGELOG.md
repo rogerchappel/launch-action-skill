@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Require verification evidence to report completed passing checks before a
+  launch plan can be marked ready.
 - Reject missing, nonexistent, unreadable, and non-directory snapshot inputs.
 - Reject missing or unsupported `--format` values instead of silently rendering
   Markdown.

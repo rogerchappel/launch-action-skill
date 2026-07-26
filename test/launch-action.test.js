@@ -26,18 +26,60 @@ test('creates ready launch plan from complete evidence', () => {
   assert.ok(plan.approvalGates.some(gate => gate.includes('package')));
 });
 
-test('does not mark explicitly failed verification as ready', t => {
-  const fixture = mkdtempSync(path.join(tmpdir(), 'launch-action-failed-verification-'));
-  t.after(() => rmSync(fixture, { recursive: true, force: true }));
-  cpSync('fixtures/sample-repo', fixture, { recursive: true });
-  writeFileSync(path.join(fixture, 'docs', 'VERIFICATION.md'), 'Tests failed. Smoke check did not pass.\n');
+const verificationCases = [
+  {
+    name: 'positive',
+    text: 'Tests passed. Smoke checks completed successfully.',
+    blocker: null
+  },
+  {
+    name: 'failed',
+    text: 'Tests failed. Smoke check did not pass.',
+    blocker: 'Verification evidence reports failed checks.'
+  },
+  {
+    name: 'pending',
+    text: 'Tests are pending and have not been run.',
+    blocker: 'Verification evidence does not report completed passing checks.'
+  },
+  {
+    name: 'skipped',
+    text: 'Tests were skipped for this release candidate.',
+    blocker: 'Verification evidence does not report completed passing checks.'
+  },
+  {
+    name: 'not run',
+    text: 'Smoke checks were not run.',
+    blocker: 'Verification evidence does not report completed passing checks.'
+  },
+  {
+    name: 'unknown',
+    text: 'Test status is unknown.',
+    blocker: 'Verification evidence does not report completed passing checks.'
+  }
+];
 
-  const plan = createLaunchPlan(fixture);
+for (const verificationCase of verificationCases) {
+  test(`classifies ${verificationCase.name} verification evidence`, t => {
+    const fixture = mkdtempSync(path.join(tmpdir(), `launch-action-${verificationCase.name}-verification-`));
+    t.after(() => rmSync(fixture, { recursive: true, force: true }));
+    cpSync('fixtures/sample-repo', fixture, { recursive: true });
+    writeFileSync(path.join(fixture, 'docs', 'VERIFICATION.md'), `${verificationCase.text}\n`);
 
-  assert.equal(plan.readiness, 'needs-review');
-  assert.ok(plan.blockers.includes('Verification evidence reports failed checks.'));
-  assert.ok(!plan.dryRunActions.some(action => action.includes('Queue publish/post actions')));
-});
+    const plan = createLaunchPlan(fixture);
+
+    assert.equal(plan.readiness, verificationCase.blocker ? 'needs-review' : 'ready');
+    assert.equal(plan.blockers.includes(verificationCase.blocker), Boolean(verificationCase.blocker));
+    assert.equal(
+      plan.announcementAngles.includes('Fixture-backed verification story.'),
+      !verificationCase.blocker
+    );
+    assert.equal(
+      plan.dryRunActions.some(action => action.includes('Queue publish/post actions')),
+      !verificationCase.blocker
+    );
+  });
+}
 
 test('renders markdown launch plan', () => {
   const markdown = renderMarkdown(createLaunchPlan('fixtures/sample-repo'));
