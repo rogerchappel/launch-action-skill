@@ -33,6 +33,36 @@ const verificationCases = [
     blocker: null
   },
   {
+    name: 'fully passing mixed checks',
+    text: 'Tests passed. Smoke checks succeeded. Release check completed successfully.',
+    blocker: null
+  },
+  {
+    name: 'passed tests with pending smoke checks',
+    text: 'Tests passed. Smoke checks pending.',
+    blocker: 'Verification evidence does not report completed passing checks.'
+  },
+  {
+    name: 'passed tests with skipped smoke checks',
+    text: 'Tests passed. Smoke checks were skipped.',
+    blocker: 'Verification evidence does not report completed passing checks.'
+  },
+  {
+    name: 'passed tests with smoke checks not run',
+    text: 'Tests passed. Smoke checks were not run.',
+    blocker: 'Verification evidence does not report completed passing checks.'
+  },
+  {
+    name: 'passed tests with unknown smoke status',
+    text: 'Tests passed. Smoke check status is unknown.',
+    blocker: 'Verification evidence does not report completed passing checks.'
+  },
+  {
+    name: 'passed tests with failed smoke checks',
+    text: 'Tests passed. Smoke checks failed.',
+    blocker: 'Verification evidence reports failed checks.'
+  },
+  {
     name: 'failed',
     text: 'Tests failed. Smoke check did not pass.',
     blocker: 'Verification evidence reports failed checks.'

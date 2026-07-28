@@ -31,9 +31,22 @@ function classifyVerification(verification) {
   const check = String.raw`\b(?:tests?|checks?|smoke(?:\s+checks?)?)\b`;
   const failed = String.raw`\b(?:fail(?:ed|ing|ure)?|did\s+not\s+pass|(?:is|are|was|were)\s+not\s+passing)\b`;
   const passed = String.raw`\b(?:pass(?:ed|ing)?|succeed(?:ed|ing)?|completed\s+successfully)\b`;
+  const incomplete = String.raw`\b(?:pending|skipped|not[\s-]+run|unknown)\b`;
+  const checkPattern = new RegExp(check, 'i');
+  const failedPattern = new RegExp(failed, 'i');
+  const passedPattern = new RegExp(passed, 'i');
+  const incompletePattern = new RegExp(incomplete, 'i');
+  const outcomes = verification
+    .split(/[.!?\n]+/)
+    .filter(statement => checkPattern.test(statement))
+    .map(statement => {
+      if (failedPattern.test(statement)) return 'failed';
+      if (incompletePattern.test(statement)) return 'incomplete';
+      return passedPattern.test(statement) ? 'passed' : 'incomplete';
+    });
 
-  if (new RegExp(`${check}[^.!?\\n]{0,80}${failed}`, 'i').test(verification)) return 'failed';
-  if (new RegExp(`${check}[^.!?\\n]{0,80}${passed}`, 'i').test(verification)) return 'passed';
+  if (outcomes.includes('failed')) return 'failed';
+  if (outcomes.length > 0 && outcomes.every(outcome => outcome === 'passed')) return 'passed';
   return 'incomplete';
 }
 
