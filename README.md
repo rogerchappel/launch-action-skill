@@ -40,7 +40,8 @@ Verification evidence must name a test, check, or smoke check and affirm that it
 passed, succeeded, or completed successfully. Every named outcome must be
 passing, so one passing test does not hide another check that is incomplete. A
 failed result gets a failure blocker. Pending, skipped, not-run, unknown,
-missing, and other non-affirmative results get an incomplete-verification
+missing, and negated results such as `Tests have not passed`, `No checks
+passed`, or `Not all checks passed` get an incomplete-verification
 blocker; they cannot produce ready status, a verification announcement angle,
 or a queue-publish action.
 
