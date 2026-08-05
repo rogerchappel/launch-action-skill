@@ -30,10 +30,12 @@ function findBlockers(evidence) {
 function classifyVerification(verification) {
   const check = String.raw`\b(?:tests?|checks?|smoke(?:\s+checks?)?)\b`;
   const failed = String.raw`\b(?:fail(?:ed|ing|ure)?|did\s+not\s+pass|(?:is|are|was|were)\s+not\s+passing)\b`;
+  const negatedOutcome = String.raw`\b(?:no\s+(?:tests?|checks?|smoke(?:\s+checks?)?)\s+(?:(?:have|has|had)\s+)?(?:passed|succeeded)|(?:tests?|checks?|smoke(?:\s+checks?)?)\s+(?:(?:have|has|had|do|does|did|can|could|will|would)\s+not|never)\s+(?:pass(?:ed|ing)?|succeed(?:ed|ing)?|complete(?:d|ing)?\s+successfully)|not\s+all\s+(?:tests?|checks?|smoke(?:\s+checks?)?)\s+(?:passed|succeeded|completed\s+successfully))\b`;
   const passed = String.raw`\b(?:pass(?:ed|ing)?|succeed(?:ed|ing)?|completed\s+successfully)\b`;
   const incomplete = String.raw`\b(?:pending|skipped|not[\s-]+run|unknown)\b`;
   const checkPattern = new RegExp(check, 'i');
   const failedPattern = new RegExp(failed, 'i');
+  const negatedOutcomePattern = new RegExp(negatedOutcome, 'i');
   const passedPattern = new RegExp(passed, 'i');
   const incompletePattern = new RegExp(incomplete, 'i');
   const outcomes = verification
@@ -41,6 +43,7 @@ function classifyVerification(verification) {
     .filter(statement => checkPattern.test(statement))
     .map(statement => {
       if (failedPattern.test(statement)) return 'failed';
+      if (negatedOutcomePattern.test(statement)) return 'incomplete';
       if (incompletePattern.test(statement)) return 'incomplete';
       return passedPattern.test(statement) ? 'passed' : 'incomplete';
     });

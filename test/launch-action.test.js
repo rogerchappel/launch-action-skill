@@ -58,6 +58,26 @@ const verificationCases = [
     blocker: 'Verification evidence does not report completed passing checks.'
   },
   {
+    name: 'tests have not passed',
+    text: 'Tests have not passed.',
+    blocker: 'Verification evidence does not report completed passing checks.'
+  },
+  {
+    name: 'no checks passed',
+    text: 'No checks passed.',
+    blocker: 'Verification evidence does not report completed passing checks.'
+  },
+  {
+    name: 'tests never succeeded',
+    text: 'Tests never succeeded.',
+    blocker: 'Verification evidence does not report completed passing checks.'
+  },
+  {
+    name: 'not all checks passed',
+    text: 'Not all checks passed.',
+    blocker: 'Verification evidence does not report completed passing checks.'
+  },
+  {
     name: 'passed tests with failed smoke checks',
     text: 'Tests passed. Smoke checks failed.',
     blocker: 'Verification evidence reports failed checks.'
@@ -132,6 +152,21 @@ test('CLI renders each documented format', () => {
   const json = runCli('fixtures/sample-repo', '--format', 'json');
   assert.equal(json.status, 0);
   assert.equal(JSON.parse(json.stdout).readiness, 'ready');
+});
+
+test('CLI does not promote negated verification evidence', t => {
+  const fixture = mkdtempSync(path.join(tmpdir(), 'launch-action-cli-negated-verification-'));
+  t.after(() => rmSync(fixture, { recursive: true, force: true }));
+  cpSync('fixtures/sample-repo', fixture, { recursive: true });
+  writeFileSync(path.join(fixture, 'docs', 'VERIFICATION.md'), 'Tests have not passed.\n');
+
+  const result = runCli(fixture, '--format', 'json');
+  assert.equal(result.status, 0);
+  const plan = JSON.parse(result.stdout);
+  assert.equal(plan.readiness, 'needs-review');
+  assert.deepEqual(plan.blockers, ['Verification evidence does not report completed passing checks.']);
+  assert.equal(plan.announcementAngles.includes('Fixture-backed verification story.'), false);
+  assert.equal(plan.dryRunActions.some(action => action.includes('Queue publish/post actions')), false);
 });
 
 test('CLI rejects a missing snapshot path', () => {
