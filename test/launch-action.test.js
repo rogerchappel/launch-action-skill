@@ -145,6 +145,10 @@ test('CLI help exits cleanly with usage text', () => {
 });
 
 test('CLI renders each documented format', () => {
+  const defaultMarkdown = runCli('fixtures/sample-repo');
+  assert.equal(defaultMarkdown.status, 0);
+  assert.match(defaultMarkdown.stdout, /# Launch Action Plan/);
+
   const markdown = runCli('fixtures/sample-repo', '--format', 'markdown');
   assert.equal(markdown.status, 0);
   assert.match(markdown.stdout, /# Launch Action Plan/);
@@ -215,4 +219,34 @@ test('CLI rejects unsupported formats', () => {
   const result = runCli('fixtures/sample-repo', '--format', 'yaml');
   assert.notEqual(result.status, 0);
   assert.match(result.stderr, /unsupported format/i);
+});
+
+test('CLI rejects extra positional arguments', () => {
+  const result = runCli('fixtures/sample-repo', 'unexpected');
+  assert.notEqual(result.status, 0);
+  assert.match(result.stderr, /unexpected argument/i);
+});
+
+test('CLI rejects duplicate --format flags', () => {
+  const result = runCli('fixtures/sample-repo', '--format', 'json', '--format', 'markdown');
+  assert.notEqual(result.status, 0);
+  assert.match(result.stderr, /--format may only be specified once/i);
+});
+
+test('CLI rejects unknown flags', () => {
+  const result = runCli('fixtures/sample-repo', '--pretty');
+  assert.notEqual(result.status, 0);
+  assert.match(result.stderr, /unknown option.*--pretty/i);
+});
+
+test('CLI requires the snapshot before options', () => {
+  const result = runCli('--format', 'json', 'fixtures/sample-repo');
+  assert.notEqual(result.status, 0);
+  assert.match(result.stderr, /snapshot directory must be the first argument/i);
+});
+
+test('CLI rejects --help when combined with other arguments', () => {
+  const result = runCli('--help', 'fixtures/sample-repo');
+  assert.notEqual(result.status, 0);
+  assert.match(result.stderr, /--help must be used alone/i);
 });
