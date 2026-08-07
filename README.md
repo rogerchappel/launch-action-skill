@@ -17,9 +17,18 @@ For a reviewable Markdown plan:
 node bin/launch-action-skill.js fixtures/sample-repo --format markdown
 ~~~
 
-The snapshot argument must name a readable directory. Output defaults to
-Markdown; `--format` accepts only `markdown` or `json`. Invalid paths and format
-values print an error to stderr and exit nonzero.
+The CLI accepts exactly this argument order:
+
+~~~text
+launch-action-skill <repo-snapshot-dir> [--format markdown|json]
+~~~
+
+The snapshot must be the first argument and name a readable directory. Output
+defaults to Markdown. The optional `--format` flag may appear once, after the
+snapshot, and accepts only `markdown` or `json`. Extra positional arguments,
+duplicate or unknown flags, missing flag values, invalid paths, and unsupported
+formats print a concise error to stderr and exit nonzero. Use `--help` by itself
+to print usage.
 
 ## What It Produces
 

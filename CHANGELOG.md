@@ -7,6 +7,10 @@
 - Reject missing, nonexistent, unreadable, and non-directory snapshot inputs.
 - Reject missing or unsupported `--format` values instead of silently rendering
   Markdown.
+- Enforce one snapshot followed by at most one `--format` flag, rejecting extra
+  positionals, duplicate or unknown flags, and options before the snapshot.
+- Exercise valid and malformed invocations through the installed package binary
+  during package smoke checks.
 
 ## 0.1.0
 
