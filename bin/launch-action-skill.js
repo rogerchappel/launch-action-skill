@@ -3,17 +3,32 @@ import { accessSync, constants, statSync } from 'node:fs';
 import { createLaunchPlan, renderMarkdown } from '../src/index.js';
 
 const args = process.argv.slice(2);
-if (args.includes('--help')) {
+if (args.length === 1 && args[0] === '--help') {
   console.log('Usage: launch-action-skill <repo-snapshot-dir> [--format markdown|json]');
   process.exit(0);
 }
+if (args.includes('--help')) fail('--help must be used alone.');
 
 const root = args[0];
-if (!root || root.startsWith('--')) fail('Snapshot directory is required.');
+if (!root) fail('Snapshot directory is required.');
+if (root.startsWith('--')) fail('Snapshot directory must be the first argument.');
 
-const formatValue = valueAfter('--format');
-if (args.includes('--format') && !formatValue) fail('--format requires markdown or json.');
-const format = formatValue || 'markdown';
+let format = 'markdown';
+let formatSeen = false;
+for (let index = 1; index < args.length; index += 1) {
+  const argument = args[index];
+  if (argument !== '--format') {
+    if (argument.startsWith('--')) fail(`Unknown option: ${argument}`);
+    fail(`Unexpected argument: ${argument}`);
+  }
+  if (formatSeen) fail('--format may only be specified once.');
+  formatSeen = true;
+  const value = args[index + 1];
+  if (!value || value.startsWith('--')) fail('--format requires markdown or json.');
+  format = value;
+  index += 1;
+}
+
 if (!['markdown', 'json'].includes(format)) {
   fail(`Unsupported format "${format}". Use markdown or json.`);
 }
@@ -23,8 +38,6 @@ validateSnapshotDirectory(root);
 const plan = createLaunchPlan(root);
 if (format === 'json') console.log(JSON.stringify(plan, null, 2));
 else console.log(renderMarkdown(plan));
-
-function valueAfter(flag) { const index = args.indexOf(flag); return index === -1 ? undefined : args[index + 1]; }
 
 function validateSnapshotDirectory(directory) {
   let stats;
