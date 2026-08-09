@@ -48,6 +48,26 @@ if (install.status !== 0) {
   process.exit(install.status || 1);
 }
 
+const consumerProbe = `
+  import { createLaunchPlan, readLaunchEvidence, renderMarkdown } from 'launch-action-skill';
+  const snapshot = ${JSON.stringify(path.resolve('fixtures/sample-repo'))};
+  const evidence = readLaunchEvidence(snapshot);
+  const plan = createLaunchPlan(snapshot);
+  const markdown = renderMarkdown(plan);
+  if (!evidence.readme?.includes('sample-agent-tool') || plan.readiness !== 'ready' || !markdown.includes('# Launch Action Plan')) {
+    throw new Error('installed package root exports returned unexpected results');
+  }
+`;
+const imported = spawnSync(process.execPath, ['--input-type=module', '--eval', consumerProbe], {
+  cwd: installRoot,
+  encoding: 'utf8'
+});
+if (imported.status !== 0) {
+  console.error('installed package root import failed');
+  process.stderr.write(`${imported.stdout || ''}${imported.stderr || ''}`);
+  process.exit(imported.status || 1);
+}
+
 const executable = path.join(installRoot, 'node_modules', '.bin', 'launch-action-skill');
 const snapshot = path.resolve('fixtures/sample-repo');
 const cases = [
@@ -72,4 +92,4 @@ for (const smokeCase of cases) {
   }
 }
 
-console.log(`package smoke passed: ${pack.filename} includes ${pack.files.length} files; ${cases.length} installed CLI cases passed`);
+console.log(`package smoke passed: ${pack.filename} includes ${pack.files.length} files; package root import and ${cases.length} installed CLI cases passed`);
