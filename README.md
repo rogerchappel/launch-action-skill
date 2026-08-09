@@ -17,6 +17,24 @@ For a reviewable Markdown plan:
 node bin/launch-action-skill.js fixtures/sample-repo --format markdown
 ~~~
 
+The package also provides a supported ESM API from its root:
+
+~~~js
+import {
+  createLaunchPlan,
+  readLaunchEvidence,
+  renderMarkdown
+} from 'launch-action-skill';
+
+const evidence = readLaunchEvidence('/path/to/repository');
+const plan = createLaunchPlan('/path/to/repository');
+const markdown = renderMarkdown(plan);
+~~~
+
+`readLaunchEvidence` reads the repository snapshot, `createLaunchPlan` builds a
+dry-run plan from it, and `renderMarkdown` converts a plan to Markdown. The
+package requires Node.js 20 or newer and publishes these functions as ESM.
+
 The CLI accepts exactly this argument order:
 
 ~~~text
