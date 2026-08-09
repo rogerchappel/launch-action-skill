@@ -3,6 +3,8 @@
   "version": "0.1.0",
   "description": "Local-first agent skill for dry-run OSS launch action plans.",
   "type": "module",
+  "main": "./src/index.js",
+  "exports": "./src/index.js",
   "bin": {
     "launch-action-skill": "bin/launch-action-skill.js"
   },
