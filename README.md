@@ -69,8 +69,11 @@ passing, so one passing test does not hide another check that is incomplete. A
 failed result gets a failure blocker. Pending, skipped, not-run, unknown,
 missing, and negated results such as `Tests have not passed`, `No checks
 passed`, or `Not all checks passed` get an incomplete-verification
-blocker; they cannot produce ready status, a verification announcement angle,
-or a queue-publish action.
+blocker. Partial or exception-qualified claims such as `Most tests passed`,
+`Tests partially passed`, or `All tests passed except smoke checks` are also
+incomplete: accepted evidence must affirm an unqualified passing outcome for
+every named check. Incomplete evidence cannot produce ready status, a
+verification announcement angle, or a queue-publish action.
 
 ## Verification
 
