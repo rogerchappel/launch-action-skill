@@ -33,11 +33,13 @@ function classifyVerification(verification) {
   const negatedOutcome = String.raw`\b(?:no\s+(?:tests?|checks?|smoke(?:\s+checks?)?)\s+(?:(?:have|has|had)\s+)?(?:passed|succeeded)|(?:tests?|checks?|smoke(?:\s+checks?)?)\s+(?:(?:have|has|had|do|does|did|can|could|will|would)\s+not|never)\s+(?:pass(?:ed|ing)?|succeed(?:ed|ing)?|complete(?:d|ing)?\s+successfully)|not\s+all\s+(?:tests?|checks?|smoke(?:\s+checks?)?)\s+(?:passed|succeeded|completed\s+successfully))\b`;
   const passed = String.raw`\b(?:pass(?:ed|ing)?|succeed(?:ed|ing)?|completed\s+successfully)\b`;
   const incomplete = String.raw`\b(?:pending|skipped|not[\s-]+run|unknown)\b`;
+  const partial = String.raw`\b(?:(?:some|most|many|several)\s+(?:tests?|checks?|smoke(?:\s+checks?)?)|partial(?:ly)?|in\s+part|except(?:\s+for)?|excluding|apart\s+from|other\s+than|with\s+the\s+exception\s+of)\b`;
   const checkPattern = new RegExp(check, 'i');
   const failedPattern = new RegExp(failed, 'i');
   const negatedOutcomePattern = new RegExp(negatedOutcome, 'i');
   const passedPattern = new RegExp(passed, 'i');
   const incompletePattern = new RegExp(incomplete, 'i');
+  const partialPattern = new RegExp(partial, 'i');
   const outcomes = verification
     .split(/[.!?\n]+/)
     .filter(statement => checkPattern.test(statement))
@@ -45,6 +47,7 @@ function classifyVerification(verification) {
       if (failedPattern.test(statement)) return 'failed';
       if (negatedOutcomePattern.test(statement)) return 'incomplete';
       if (incompletePattern.test(statement)) return 'incomplete';
+      if (partialPattern.test(statement)) return 'incomplete';
       return passedPattern.test(statement) ? 'passed' : 'incomplete';
     });
 
