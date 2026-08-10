@@ -78,6 +78,26 @@ const verificationCases = [
     blocker: 'Verification evidence does not report completed passing checks.'
   },
   {
+    name: 'all tests passed except smoke checks',
+    text: 'All tests passed except smoke checks.',
+    blocker: 'Verification evidence does not report completed passing checks.'
+  },
+  {
+    name: 'checks passed apart from smoke checks',
+    text: 'Checks passed apart from smoke checks.',
+    blocker: 'Verification evidence does not report completed passing checks.'
+  },
+  {
+    name: 'most tests passed',
+    text: 'Most tests passed.',
+    blocker: 'Verification evidence does not report completed passing checks.'
+  },
+  {
+    name: 'tests partially passed',
+    text: 'Tests partially passed.',
+    blocker: 'Verification evidence does not report completed passing checks.'
+  },
+  {
     name: 'passed tests with failed smoke checks',
     text: 'Tests passed. Smoke checks failed.',
     blocker: 'Verification evidence reports failed checks.'

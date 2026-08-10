@@ -1,5 +1,5 @@
 import { spawnSync } from 'node:child_process';
-import { mkdtempSync, rmSync } from 'node:fs';
+import { cpSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 
@@ -70,10 +70,23 @@ if (imported.status !== 0) {
 
 const executable = path.join(installRoot, 'node_modules', '.bin', 'launch-action-skill');
 const snapshot = path.resolve('fixtures/sample-repo');
+const partialSnapshot = path.join(workspace, 'partial-verification');
+cpSync(snapshot, partialSnapshot, { recursive: true });
+writeFileSync(
+  path.join(partialSnapshot, 'docs', 'VERIFICATION.md'),
+  'All tests passed except smoke checks.\n'
+);
 const cases = [
   { name: 'default format', args: [snapshot], status: 0, output: /# Launch Action Plan/ },
   { name: 'markdown format', args: [snapshot, '--format', 'markdown'], status: 0, output: /# Launch Action Plan/ },
   { name: 'json format', args: [snapshot, '--format', 'json'], status: 0, output: /"readiness": "ready"/ },
+  {
+    name: 'partial verification',
+    args: [partialSnapshot, '--format', 'json'],
+    status: 0,
+    output: /"readiness": "needs-review"/,
+    absent: /Fixture-backed verification story|Queue publish\/post actions/
+  },
   { name: 'extra positional', args: [snapshot, 'extra'], status: 1, error: /unexpected argument/i },
   { name: 'duplicate format', args: [snapshot, '--format', 'json', '--format', 'markdown'], status: 1, error: /only be specified once/i },
   { name: 'unknown flag', args: [snapshot, '--pretty'], status: 1, error: /unknown option/i },
@@ -85,6 +98,7 @@ for (const smokeCase of cases) {
   const invocation = spawnSync(executable, smokeCase.args, { encoding: 'utf8' });
   if (invocation.status !== smokeCase.status
       || (smokeCase.output && !smokeCase.output.test(invocation.stdout))
+      || (smokeCase.absent && smokeCase.absent.test(invocation.stdout))
       || (smokeCase.error && !smokeCase.error.test(invocation.stderr))) {
     console.error(`installed CLI smoke failed: ${smokeCase.name}`);
     process.stderr.write(`${invocation.stdout || ''}${invocation.stderr || ''}`);
